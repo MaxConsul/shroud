@@ -50,8 +50,8 @@ jobs:
         server-dir: ${{ secrets.FTP_DIR }}
         protocol: ftp        # or ftps if your host supports it
         exclude: |
-        **/.git*
-        **/public/index.php
-        **/public/.htaccess
-        **/public/robots.txt
-        **/.env
+          **/.git*
+          **/public/index.php
+          **/public/.htaccess
+          **/public/robots.txt
+          **/.env
