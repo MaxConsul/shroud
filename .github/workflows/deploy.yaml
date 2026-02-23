@@ -49,3 +49,9 @@ jobs:
         local-dir: ./        # deploy everything in repo root or change to subfolder
         server-dir: ${{ secrets.FTP_DIR }}
         protocol: ftp        # or ftps if your host supports it
+        exclude: |
+        **/.git*
+        **/public/index.php
+        **/public/.htaccess
+        **/public/robots.txt
+        **/.env
