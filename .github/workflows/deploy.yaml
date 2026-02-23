@@ -39,13 +39,13 @@ jobs:
     - name: Build Vite assets
       run: npm run build
 
-    # 7. Deploy to InfinityFree via FTP
+   # 7. Deploy to InfinityFree via FTP
     - name: Deploy via FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.6
       with:
         server: ${{ secrets.FTP_HOST }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./          # deploy everything in repo root
+        local-dir: ./        # deploy everything in repo root or change to subfolder
         server-dir: ${{ secrets.FTP_DIR }}
-        git-ftp-args: --insecure
+        protocol: ftp        # or ftps if your host supports it
