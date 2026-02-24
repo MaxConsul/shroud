@@ -53,5 +53,7 @@ jobs:
           **/.git*
           **/public/index.php
           **/public/.htaccess
+          **/index.php
+          **/.htaccess
           **/public/robots.txt
           **/.env
