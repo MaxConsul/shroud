@@ -3,91 +3,59 @@ name: Deploy Laravel to InfinityFree
 on:
   push:
     branches:
-      - main  # change if you deploy from another branch
+      - main
 
 jobs:
   ftp-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Checkout code
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      # 1️⃣ Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    # 2. Setup PHP
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: 8.2
-        extensions: mbstring, curl, xml, bcmath, gd
+      # 2️⃣ Setup PHP
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: mbstring, curl, xml, bcmath, gd
 
-    # 3. Install Composer dependencies
-    - name: Install Composer dependencies
-      run: composer install --no-dev --optimize-autoloader
+      # 3️⃣ Install Composer dependencies
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader
 
-    # 4. Setup Node.js (for Vite)
-    - name: Setup Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: 20
+      # 4️⃣ Setup Node.js
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
 
-    # 5. Install npm packages
-    - name: Install NPM dependencies
-      run: npm install
+      # 5️⃣ Install NPM packages
+      - name: Install NPM dependencies
+        run: npm install
 
-    # 6. Build production assets
-    - name: Build Vite assets
-      run: npm run build
+      # 6️⃣ Build Vite assets
+      - name: Build Vite assets
+        run: npm run build
 
-    # 7. Deploy compiled Vite assets (incremental)
-    - name: Deploy Vite assets via FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.6
-      with:
-        server: ${{ secrets.FTP_HOST }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./public/build/          # only compiled assets
-        server-dir: ${{ secrets.FTP_DIR }}/build
-        protocol: ftp
-        sync: true                         # only upload changed files
-        delete: false                      # optional: keep other files
-        exclude: |
-          **/.git*
-          **/.env
-
-    # 8. Deploy public folder (index.php, .htaccess, etc.)
-    - name: Deploy public folder via FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.6
-      with:
-        server: ${{ secrets.FTP_HOST }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./public/
-        server-dir: ${{ secrets.FTP_DIR }}
-        protocol: ftp
-        sync: true
-        exclude: |
-          **/build/**    # avoid re-uploading built assets
-          **/.git*
-          **/.env
-
-    # 9. Deploy Laravel PHP files (controllers, models, routes, config)
-    - name: Deploy Laravel core files via FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.6
-      with:
-        server: ${{ secrets.FTP_HOST }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./                         # deploy Laravel root
-        server-dir: ${{ secrets.FTP_DIR }}
-        protocol: ftp
-        sync: true                             # only changed files
-        exclude: |
-          **/.git*
-          **/node_modules**
-          **/resources/**                    # source files not needed
-          **/public/**                        # already deployed
-          **/vendor/**                        # optional: deploy manually if needed
-          **/.env
-          **/npm-debug.log
-          **/yarn-error.log
+      # 7️⃣ Deploy EVERYTHING needed to /htdocs/shroud/
+      - name: Deploy to InfinityFree via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp
+          local-dir: ./
+          server-dir: /htdocs/shroud/   # ⚠️ must end with /
+          exclude: |
+            **/.git*
+            **/node_modules/**
+            **/resources/**
+            **/.env
+            **/tests/**
+            **/storage/framework/cache/**
+            **/storage/logs/**
+            **/npm-debug.log
+            **/yarn-error.log
