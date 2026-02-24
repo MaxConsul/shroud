@@ -3,7 +3,7 @@ name: Deploy Laravel to InfinityFree
 on:
   push:
     branches:
-      - main   # change if you deploy from another branch
+      - main  # change if you deploy from another branch
 
 jobs:
   ftp-deploy:
@@ -39,7 +39,23 @@ jobs:
     - name: Build Vite assets
       run: npm run build
 
-    # 7. Deploy Laravel public folder and build assets
+    # 7. Deploy compiled Vite assets (incremental)
+    - name: Deploy Vite assets via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+      with:
+        server: ${{ secrets.FTP_HOST }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./public/build/          # only compiled assets
+        server-dir: ${{ secrets.FTP_DIR }}/build
+        protocol: ftp
+        sync: true                         # only upload changed files
+        delete: false                      # optional: keep other files
+        exclude: |
+          **/.git*
+          **/.env
+
+    # 8. Deploy public folder (index.php, .htaccess, etc.)
     - name: Deploy public folder via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.6
       with:
@@ -49,27 +65,29 @@ jobs:
         local-dir: ./public/
         server-dir: ${{ secrets.FTP_DIR }}
         protocol: ftp
+        sync: true
         exclude: |
+          **/build/**    # avoid re-uploading built assets
           **/.git*
-          **/node_modules*
           **/.env
 
-    # 8. Deploy rest of Laravel files (excluding resources, node_modules, etc.)
+    # 9. Deploy Laravel PHP files (controllers, models, routes, config)
     - name: Deploy Laravel core files via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.6
       with:
         server: ${{ secrets.FTP_HOST }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./        # deploy root Laravel files
+        local-dir: ./                         # deploy Laravel root
         server-dir: ${{ secrets.FTP_DIR }}
         protocol: ftp
+        sync: true                             # only changed files
         exclude: |
           **/.git*
-          **/node_modules*
-          **/resources/**
-          **/public/**
-          **/vendor/**
+          **/node_modules**
+          **/resources/**                    # source files not needed
+          **/public/**                        # already deployed
+          **/vendor/**                        # optional: deploy manually if needed
           **/.env
           **/npm-debug.log
           **/yarn-error.log
