@@ -39,21 +39,37 @@ jobs:
     - name: Build Vite assets
       run: npm run build
 
-   # 7. Deploy to InfinityFree via FTP
-    - name: Deploy via FTP
+    # 7. Deploy Laravel public folder and build assets
+    - name: Deploy public folder via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.6
       with:
         server: ${{ secrets.FTP_HOST }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./public/      # deploy everything in repo root or change to subfolder
+        local-dir: ./public/
         server-dir: ${{ secrets.FTP_DIR }}
-        protocol: ftp        # or ftps if your host supports it
+        protocol: ftp
         exclude: |
           **/.git*
-          **/public/index.php
-          **/public/.htaccess
-          **/index.php
-          **/.htaccess
-          **/public/robots.txt
+          **/node_modules*
           **/.env
+
+    # 8. Deploy rest of Laravel files (excluding resources, node_modules, etc.)
+    - name: Deploy Laravel core files via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+      with:
+        server: ${{ secrets.FTP_HOST }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./        # deploy root Laravel files
+        server-dir: ${{ secrets.FTP_DIR }}
+        protocol: ftp
+        exclude: |
+          **/.git*
+          **/node_modules*
+          **/resources/**
+          **/public/**
+          **/vendor/**
+          **/.env
+          **/npm-debug.log
+          **/yarn-error.log
