@@ -1,4 +1,4 @@
-name: Deploy Laravel to InfinityFree
+name: Fast Deploy Laravel to InfinityFree
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repository
+      # 1️⃣ Checkout
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -21,40 +21,47 @@ jobs:
           php-version: 8.2
           extensions: mbstring, curl, xml, bcmath, gd
 
-      # 3️⃣ Install Composer dependencies
+      # 3️⃣ Install optimized Composer dependencies
       - name: Install Composer dependencies
-        run: composer install --no-dev --optimize-autoloader
+        run: composer install --no-dev --optimize-autoloader --prefer-dist
 
-      # 4️⃣ Setup Node.js
+      # 4️⃣ Setup Node
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      # 5️⃣ Install NPM packages
+      # 5️⃣ Install NPM
       - name: Install NPM dependencies
         run: npm install
 
-      # 6️⃣ Build Vite assets
+      # 6️⃣ Build assets
       - name: Build Vite assets
         run: npm run build
 
-      # 7️⃣ Deploy EVERYTHING needed to /htdocs/shroud/
-      - name: Deploy to InfinityFree via FTP
+      # 7️⃣ Optimize Laravel (reduces runtime overhead)
+      - name: Optimize Laravel
+        run: |
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+
+      # 8️⃣ Deploy only necessary folders
+      - name: Deploy to InfinityFree
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftp
+          server-dir: /htdocs/shroud/   # must end with /
           local-dir: ./
-          server-dir: /htdocs/shroud/   # ⚠️ must end with /
           exclude: |
             **/.git*
             **/node_modules/**
             **/resources/**
-            **/.env
             **/tests/**
+            **/.env
             **/storage/framework/cache/**
             **/storage/logs/**
             **/npm-debug.log
