@@ -15,6 +15,7 @@ jobs:
         uses: actions/checkout@v3
 
       # 2️⃣ Setup PHP
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.2
@@ -38,13 +39,11 @@ jobs:
       - name: Build Vite assets
         run: npm run build
 
-      # 7️⃣ Prepare InfinityFree structure
-      - name: Move assets & fix manifest
+      # 7️⃣ Move assets & fix manifest
+      - name: Prepare InfinityFree structure
         run: |
           mkdir -p build/assets
           cp -r public/build/assets/* build/assets/
-
-          # Rewrite manifest asset paths
           sed -i 's|"assets/|"/build/assets/|g' public/build/manifest.json
 
       # 8️⃣ Optimize Laravel
