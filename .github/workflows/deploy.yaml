@@ -46,7 +46,7 @@ jobs:
         server: ${{ secrets.FTP_HOST }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./public      # deploy everything in repo root or change to subfolder
+        local-dir: ./public/      # deploy everything in repo root or change to subfolder
         server-dir: ${{ secrets.FTP_DIR }}
         protocol: ftp        # or ftps if your host supports it
         exclude: |
