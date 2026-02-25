@@ -23,7 +23,7 @@ import { Head } from '@inertiajs/vue3';
                     <div class="p-6 text-gray-900 dark:text-gray-100">
                         This changes is for testing
                     </div>
-                </div>
+                </div> 
             </div>
         </div>
     </AuthenticatedLayout>
