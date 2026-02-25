@@ -46,16 +46,16 @@ jobs:
           php artisan route:cache
           php artisan view:cache
 
-      # 8️⃣ Deploy to InfinityFree
-      - name: Deploy to InfinityFree
+      # 8️⃣ Deploy all main files except excluded ones
+      - name: Deploy main files to InfinityFree
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftp
-          server-dir: /htdocs/shroud/   # Keep your working folder
-          local-dir: ./                 # Root of repo
+          server-dir: /htdocs/shroud/
+          local-dir: ./
           exclude: |
             **/.git*
             **/node_modules/**
@@ -63,7 +63,33 @@ jobs:
             **/tests/**
             **/.env
             **/.htaccess
+            **/index.php
+            **/index.ph
             **/storage/framework/cache/**
             **/storage/logs/**
             **/npm-debug.log
             **/yarn-error.log
+            public/assets/**         # Exclude assets here, handled in next step
+
+      # 9️⃣ Deploy public/assets to build/assets
+      - name: Deploy assets to build folder
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp
+          server-dir: /htdocs/shroud/build/assets/
+          local-dir: ./public/assets/
+
+      # 🔟 Ensure manifest.json is uploaded to its original location
+      - name: Upload manifest.json
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp
+          server-dir: /htdocs/shroud/public/build/
+          local-dir: ./public/build/
+          include: manifest.json
