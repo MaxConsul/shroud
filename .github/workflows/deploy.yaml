@@ -69,7 +69,7 @@ jobs:
             **/storage/logs/**
             **/npm-debug.log
             **/yarn-error.log
-            public/assets/**         # Exclude assets here, handled in next step
+            public/build/assets/**         # Exclude assets here, handled in next step
 
       # 9️⃣ Deploy public/assets to build/assets
       - name: Deploy assets to build folder
@@ -80,7 +80,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftp
           server-dir: /htdocs/shroud/build/assets/
-          local-dir: ./public/assets/
+          local-dir: ./public/build/assets/
 
       # 🔟 Ensure manifest.json is uploaded to its original location
       - name: Upload manifest.json
